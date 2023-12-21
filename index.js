@@ -53,16 +53,36 @@ async function run() {
     })
 
 
+    
+// UPDATE ROUTE ------------------
+
+// TASK STATUS UPDATE ROUTE
+
+app.put('/update-task-status/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { status } = req.body;
+    console.log('status', status)
+    const query = { _id: new ObjectId(id) };
+    const update = { $set: { status } };
+    
+    const result = await taskCollection.updateOne(query, update);
+    console.log('update result', result)
+    res.send(result);
+  } catch (error) {
+    console.error('Error updating task status:', error);
+    res.status(500).send({ error: 'Internal Server Error' });
+  }
+});
+
     // DELETE ROUTE-------------------
 
     // TASK DELETE ROUTE
     
     app.delete('/delete-task/:id', async (req, res) => {
       const id = req.params.id;
-      console.log('param id', id)
       const query = {_id: new ObjectId(id)}
       const result = await taskCollection.deleteOne(query)
-      console.log(query)
       res.send(result)
 
     })
