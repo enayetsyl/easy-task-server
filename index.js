@@ -37,10 +37,8 @@ async function run() {
 
     app.get('/all-tasks', async(req, res) => {
       const status = req.query.status;
-      console.log('status', status)
       const query = {status:status}
       const result = await taskCollection.find(query).toArray()
-      console.log('result', result)
       res.send(result)
     })
 
@@ -50,10 +48,23 @@ async function run() {
 
     app.post('/add-task', async(req, res) => {
       const task = req.body;
-      console.log('task', task)
       const result = await taskCollection.insertOne(task)
-      console.log('result', result)
       res.send(result)
+    })
+
+
+    // DELETE ROUTE-------------------
+
+    // TASK DELETE ROUTE
+    
+    app.delete('/delete-task/:id', async (req, res) => {
+      const id = req.params.id;
+      console.log('param id', id)
+      const query = {_id: new ObjectId(id)}
+      const result = await taskCollection.deleteOne(query)
+      console.log(query)
+      res.send(result)
+
     })
 
 
