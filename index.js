@@ -35,12 +35,21 @@ async function run() {
 // GET ROUTE--------------------------
 //  POST GET ROUTE
 
-    app.get('/all-tasks', async(req, res) => {
-      const status = req.query.status;
-      const query = {status:status}
-      const result = await taskCollection.find(query).toArray()
-      res.send(result)
-    })
+app.get('/all-tasks', async (req, res) => {
+  const status = req.query.status;
+  const email = req.query.email; // Add this line to retrieve email from query parameters
+  const query = { status: status, userEmail: email }; // Include email in the query object
+  console.log(query, status, email)
+
+  try {
+    const result = await taskCollection.find(query).toArray();
+    console.log(result)
+    res.send(result);
+  } catch (error) {
+    console.error('Error fetching tasks:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 // SINGLE POST GET ROUTE
 
