@@ -33,7 +33,7 @@ async function run() {
 
 
 // GET ROUTE--------------------------
-// ONGOING POST GET ROUTE
+//  POST GET ROUTE
 
     app.get('/all-tasks', async(req, res) => {
       const status = req.query.status;
@@ -42,6 +42,16 @@ async function run() {
       res.send(result)
     })
 
+// SINGLE POST GET ROUTE
+
+    app.get('/single-task/:id', async(req,res) => {
+      const id = req.params.id
+      const query = {_id: new ObjectId(id)}
+      const result = await taskCollection.findOne(query)
+      console.log(result)
+      res.send(result)
+    })
+  
 // POST ROUTE-------------------------
 
 // ADD TASK POST ROUTE
@@ -62,18 +72,39 @@ app.put('/update-task-status/:id', async (req, res) => {
   try {
     const id = req.params.id;
     const { status } = req.body;
-    console.log('status', status)
     const query = { _id: new ObjectId(id) };
     const update = { $set: { status } };
     
     const result = await taskCollection.updateOne(query, update);
-    console.log('update result', result)
     res.send(result);
   } catch (error) {
     console.error('Error updating task status:', error);
     res.status(500).send({ error: 'Internal Server Error' });
   }
 });
+
+// TASK EDIT ROUTE
+
+  app.put('/edit-task/:id', async(req, res) => {
+    try {
+      const id = req.params.id
+      console.log('edit data id', id)
+      const data = req.body
+      console.log('data', data)
+      const query = {_id: new ObjectId(id)}
+      console.log('query',query)
+      const update = { $set: { TaskTitle:data.TaskTitle,
+      TaskDescription:data.TaskDescription,
+      Deadlines:data.Deadlines,
+      Priority:data.Priority,
+     } };
+     const result = await taskCollection.updateOne(query, update);
+     console.log(result)
+    res.send(result);
+    } catch (error) {
+      
+    }
+  })
 
     // DELETE ROUTE-------------------
 
