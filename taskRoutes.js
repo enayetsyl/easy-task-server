@@ -2,65 +2,121 @@ const express = require('express');
 const router = express.Router();
 const { Task } = require('./model');
 
-// FOR ALL PRODUCTS
+// GET ROUTE--------------------------
 
-router.get('/allproducts', async (req, res) => {
+//  POST GET ROUTE
+
+router.get('/all-tasks', async (req, res) => {
+  const status = req.query.status;
+  const email = req.query.email; 
+  const query = { status: status, userEmail: email }; 
+
   try {
-    const result = await Product.find();
+    const result = await Task.find(query);
+    console.log(result)
     res.send(result);
   } catch (error) {
-    console.error('Error fetching produts:', error.message);
+    console.error('Error fetching tasks:', error);
     res.status(500).send('Internal Server Error');
   }
 });
 
-// EDIT PRODUCT GET ROUTE
-router.get('/allproducts/:id', async (req, res) => {
+// SINGLE POST GET ROUTE
+
+    router.get('/single-task/:id', async(req,res) => {
+      try{
+        const id = req.params.id
+      const result = await Task.findById(id)
+      console.log(result)
+      res.send(result)
+      } catch (error) {
+        console.error('Error fetching task:', error.message);
+        res.status(500).send('Internal Server Error');
+      }
+    })
+  
+// POST ROUTE-------------------------
+
+// ADD TASK POST ROUTE
+
+    router.post('/add-task', async(req, res) => {
+      try {
+        const task = new Task(req.body);
+      const result = await task.save()
+      res.send(result)
+      } catch (error) {
+        console.error('Error adding task:', error.message);
+    res.status(500).send('Internal Server Error');
+      }
+    })
+
+
+    
+// UPDATE ROUTE ------------------
+// TASK STATUS UPDATE ROUTE
+
+router.put('/update-task-status/:id', async (req, res) => {
   try {
     const id = req.params.id;
-    const result = await Product.findById(id);
-    res.send(result);
+    const { status } = req.body;
+    const updatedTask = await Task.findByIdAndUpdate(id, { $set: { status } }, { new: true });
+
+    if (updatedTask) {
+      res.send(updatedTask);
+    } else {
+      res.status(404).send({ error: 'Task not found' });
+    }
   } catch (error) {
-    console.error('Error fetching products:', error.message);
-    res.status(500).send('Internal Server Error');
+    console.error('Error updating task status:', error);
+    res.status(500).send({ error: 'Internal Server Error' });
   }
 });
 
-// FOR ADD PRODUCT POST ROUTE
-router.post('/addproduct', async (req, res) => {
-  try {
-    const product = new Product(req.body);
-    console.log('req.body', product)
-    const result = await product.save();
-    console.log('result', result)
-    res.send(result);
-  } catch (error) {
-    console.error('Error adding product:', error.message);
-    res.status(500).send('Internal Server Error');
-  }
-});
-// EDIT PRODUCT PATCH ROUTE
-router.patch('/allproducts/:id', async (req, res) => {
-  const id = req.params.id;
-  const updatedProductData = req.body;
-  const result = await Product.findByIdAndUpdate(
-    id,
-    { $set: updatedProductData },
-    { new: true }
-  );
-  res.send(result);
-});
+// TASK EDIT ROUTE
 
-// FOR DELETE PRODUCT ROUTE
-router.delete('/allproduct/:id', async (req, res) => {
-  const id = req.params.id;
-  try {
-    const result = await Product.findByIdAndDelete(id);
-    res.send(result);
-  } catch (error) {
-    console.error('Error deleting product:', error.message);
+  router.put('/edit-task/:id', async(req, res) => {
+    try {
+      const id = req.params.id
+      console.log('edit data id', id)
+      const data = req.body
+      const updatedTask = await Task.findByIdAndUpdate(
+        id,
+        {
+          $set: {
+            TaskTitle: data.TaskTitle,
+            TaskDescription: data.TaskDescription,
+            Deadlines: data.Deadlines,
+            Priority: data.Priority,
+          },
+        },
+        { new: true }
+      );
+      if (updatedTask) {
+        res.send(updatedTask);
+      } else {
+        res.status(404).send({ error: 'Task not found' });
+      }
+     
+    } catch (error) {
+      console.error('Error updating task:', error);
+    res.status(500).send({ error: 'Internal Server Error' });
+    }
+  })
+
+    // DELETE ROUTE-------------------
+
+    // TASK DELETE ROUTE
+    
+    router.delete('/delete-task/:id', async (req, res) => {
+      const id = req.params.id;
+      try {
+      const result = await Task.findByIdAndDelete(id)
+      res.send(result)
+      } catch (error) {
+        console.error('Error deleting product:', error.message);
     res.status(500).send('Internal Server Error');
-  }
-});
+      }
+    })
+
 
 module.exports = router;
